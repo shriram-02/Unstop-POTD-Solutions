@@ -1,0 +1,57 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class Node {
+        long val;
+        int left, right;
+
+        Node(long val, int left, int right) {
+            this.val = val;
+            this.left = left;
+            this.right = right;
+        }
+    }
+
+    static Node[] tree;
+    static int count = 0;
+
+    static long dfs(int idx) {
+        if (idx == -1) return Long.MIN_VALUE;
+
+        Node node = tree[idx];
+
+        long leftMax = dfs(node.left);
+        long rightMax = dfs(node.right);
+
+        long descMax = Math.max(leftMax, rightMax);
+
+        if (descMax < node.val) {
+            count++;
+        }
+
+        return Math.max(node.val, descMax);
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int n = Integer.parseInt(br.readLine().trim());
+
+        tree = new Node[n];
+
+        for (int i = 0; i < n; i++) {
+            String[] parts = br.readLine().trim().split("\\s+");
+            long value = Long.parseLong(parts[0]);
+            int left = Integer.parseInt(parts[1]);
+            int right = Integer.parseInt(parts[2]);
+
+            tree[i] = new Node(value, left, right);
+        }
+
+        dfs(0);
+
+        System.out.println(count);
+    }
+}

@@ -1,0 +1,95 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+
+using namespace std;
+
+void dfs1(int node, vector<vector<int>>& adj, vector<bool>& vis, stack<int>& st) {
+    vis[node] = true;
+
+    for (int nei : adj[node]) {
+        if (!vis[nei]) {
+            dfs1(nei, adj, vis, st);
+        }
+    }
+
+    st.push(node);
+}
+
+int dfs2(int node, vector<vector<int>>& rev, vector<bool>& vis) {
+    vis[node] = true;
+    int size = 1;
+
+    for (int nei : rev[node]) {
+        if (!vis[nei]) {
+            size += dfs2(nei, rev, vis);
+        }
+    }
+
+    return size;
+}
+
+// Function to find largest SCC
+int largest_scc(int N, const vector<pair<int, int>>& edges) {
+
+    vector<vector<int>> adj(N + 1), rev(N + 1);
+
+    // Build graph and reversed graph
+    for (auto edge : edges) {
+        int u = edge.first;
+        int v = edge.second;
+
+        adj[u].push_back(v);
+        rev[v].push_back(u);
+    }
+
+    vector<bool> vis(N + 1, false);
+    stack<int> st;
+
+    // First DFS pass
+    for (int i = 1; i <= N; i++) {
+        if (!vis[i]) {
+            dfs1(i, adj, vis, st);
+        }
+    }
+
+    // Reset visited
+    fill(vis.begin(), vis.end(), false);
+
+    int largest = 0;
+
+    // Second DFS pass
+    while (!st.empty()) {
+        int node = st.top();
+        st.pop();
+
+        if (!vis[node]) {
+            int scc_size = dfs2(node, rev, vis);
+            largest = max(largest, scc_size);
+        }
+    }
+
+    return largest;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int N, M;
+    cin >> N >> M;
+
+    vector<pair<int, int>> edges(M);
+
+    for (int i = 0; i < M; ++i) {
+        int A, B;
+        cin >> A >> B;
+        edges[i] = {A, B};
+    }
+
+    int result = largest_scc(N, edges);
+
+    cout << result << endl;
+
+    return 0;
+}

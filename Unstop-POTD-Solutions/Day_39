@@ -1,0 +1,37 @@
+msg = input()
+
+params = msg.split("(")
+
+ans = ""
+question = {}
+key = []
+
+for word in params:
+  if ')' in word:
+    temp = word.split(')')
+    question[temp[0]] = '?'
+    key.append(temp[0])
+    ans+="%s"
+    ans+=temp[-1]
+  else:
+    ans+=word
+
+q = int(input())
+while q:
+  read = input().split()
+  if read[0] in question:
+    question[read[0]] = read[1]
+  q-=1
+
+tempo = ans.split("%s")
+
+myAns = ""
+j=0
+for i in tempo:
+  t=""
+  if j < len(key):
+    t = question[key[j]]
+  myAns = myAns + i + t
+  j+=1
+
+print(myAns)

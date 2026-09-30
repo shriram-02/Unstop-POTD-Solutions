@@ -1,0 +1,78 @@
+import java.util.*;
+
+public class Main {
+
+    public static void chronoLockedUpgrade(int n, int m, int[] chronoLock, int[][] edges) {
+        List<Integer>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        int[] indegree = new int[n];
+
+        for (int[] edge : edges) {
+            int u = edge[0] - 1;
+            int v = edge[1] - 1;
+
+            graph[u].add(v);
+            indegree[v]++;
+        }
+
+        Queue<Integer> queue = new LinkedList<>();
+
+        for (int i = 0; i < n; i++) {
+            if (indegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        long[] bestPredTime = new long[n];
+        long[] upgradeTime = new long[n];
+
+        int processed = 0;
+        long answer = 0;
+
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            processed++;
+
+            upgradeTime[u] = Math.max((long) chronoLock[u], bestPredTime[u] + 1);
+            answer = Math.max(answer, upgradeTime[u]);
+
+            for (int v : graph[u]) {
+                bestPredTime[v] = Math.max(bestPredTime[v], upgradeTime[u]);
+
+                indegree[v]--;
+                if (indegree[v] == 0) {
+                    queue.offer(v);
+                }
+            }
+        }
+
+        if (processed < n) {
+            System.out.println("CYCLE DETECTED");
+        } else {
+            System.out.println(answer);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int n = scanner.nextInt();
+        int m = scanner.nextInt();
+
+        int[] chronoLock = new int[n];
+        for (int i = 0; i < n; i++) {
+            chronoLock[i] = scanner.nextInt();
+        }
+
+        int[][] edges = new int[m][2];
+        for (int i = 0; i < m; i++) {
+            edges[i][0] = scanner.nextInt();
+            edges[i][1] = scanner.nextInt();
+        }
+
+        chronoLockedUpgrade(n, m, chronoLock, edges);
+    }
+}

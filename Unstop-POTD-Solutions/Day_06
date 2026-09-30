@@ -1,0 +1,86 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct DSU {
+    vector<int> parent, rank;
+    DSU(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+    int find(int x) {
+        if (parent[x] != x) parent[x] = find(parent[x]);
+        return parent[x];
+    }
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a != b) {
+            if (rank[a] < rank[b]) swap(a, b);
+            parent[b] = a;
+            if (rank[a] == rank[b]) rank[a]++;
+        }
+    }
+};
+
+int calculateUniqueSubsetXOR(int n, int m, const vector<int>& codes, const vector<pair<int, int>>& edges) {
+    DSU dsu(n);
+
+    for (auto &e : edges) {
+        dsu.unite(e.first, e.second);
+    }
+
+    vector<vector<int>> components(n);
+    for (int i = 0; i < n; i++) {
+        components[dsu.find(i)].push_back(codes[i]);
+    }
+
+    long long result = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (components[i].empty()) continue;
+
+        vector<int> basis(20, 0);
+
+        for (int x : components[i]) {
+            for (int b = 19; b >= 0; b--) {
+                if (!(x & (1 << b))) continue;
+                if (!basis[b]) {
+                    basis[b] = x;
+                    break;
+                }
+                x ^= basis[b];
+            }
+        }
+
+        int sz = 0;
+        for (int b = 0; b < 20; b++) {
+            if (basis[b]) sz++;
+        }
+
+        result += (1LL << sz);
+    }
+
+    return result;
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    vector<int> codes(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> codes[i];
+    }
+    
+    vector<pair<int, int>> edges(m);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+        edges[i] = {u - 1, v - 1};
+    }
+    
+    cout << calculateUniqueSubsetXOR(n, m, codes, edges) << endl;
+    return 0;
+}

@@ -1,0 +1,53 @@
+class ListNode:
+    def __init__(self, x):
+        self.val = x
+        self.next = None
+
+def user_logic(head):
+    # Form the number from the linked list
+    digits = []
+    curr = head
+
+    while curr:
+        digits.append(str(curr.val))
+        curr = curr.next
+
+    num = int(''.join(digits))  # Handles leading zeros
+
+    # Reverse the number
+    rev_num = int(str(num)[::-1])
+
+    # Sum of digits of the reversed number
+    digit_sum = sum(int(d) for d in str(rev_num))
+
+    # Final calculation
+    result = rev_num - digit_sum
+
+    return "even" if result % 2 == 0 else "odd"
+
+def main():
+    import sys
+    input = sys.stdin.read
+    data = input().strip().split()
+
+    N = int(data[0])
+    nodes = list(map(int, data[1:N + 1]))
+
+    head = None
+    tail = None
+
+    for digit in nodes:
+        newNode = ListNode(digit)
+
+        if head is None:
+            head = newNode
+        else:
+            tail.next = newNode
+
+        tail = newNode
+
+    result = user_logic(head)
+    print(result)
+
+if __name__ == "__main__":
+    main()
