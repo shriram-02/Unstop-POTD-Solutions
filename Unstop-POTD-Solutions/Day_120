@@ -1,0 +1,66 @@
+import sys
+input = sys.stdin.readline
+
+class TrieNode:
+    def __init__(self):
+        self.child = [None, None]
+
+def insert(root, num):
+    node = root
+    for i in reversed(range(31)):  # up to 2^30 > 1e9
+        bit = (num >> i) & 1
+        if not node.child[bit]:
+            node.child[bit] = TrieNode()
+        node = node.child[bit]
+
+def query(root, num):
+    node = root
+    if not node:
+        return -1
+    ans = 0
+    for i in reversed(range(31)):
+        bit = (num >> i) & 1
+        opp = 1 - bit
+        if node.child[opp]:
+            ans |= (1 << i)
+            node = node.child[opp]
+        else:
+            node = node.child[bit]
+    return ans
+
+# Segment tree of tries
+def build_segment_tree(arr, n):
+    seg = [None] * (4*n)
+    def build(idx, l, r):
+        root = TrieNode()
+        for i in range(l, r+1):
+            insert(root, arr[i])
+        seg[idx] = root
+        if l < r:
+            mid = (l+r)//2
+            build(2*idx, l, mid)
+            build(2*idx+1, mid+1, r)
+    build(1, 0, n-1)
+    return seg
+
+def range_query(seg, idx, l, r, ql, qr, x):
+    if qr < l or ql > r:
+        return -1
+    if ql <= l and r <= qr:
+        return query(seg[idx], x)
+    mid = (l+r)//2
+    left = range_query(seg, 2*idx, l, mid, ql, qr, x)
+    right = range_query(seg, 2*idx+1, mid+1, r, ql, qr, x)
+    return max(left, right)
+
+# Main
+n = int(input())
+codes = list(map(int, input().split()))
+q = int(input())
+
+seg = build_segment_tree(codes, n)
+
+for _ in range(q):
+    l, r, x = map(int, input().split())
+    # convert to 0-based indices
+    print(range_query(seg, 1, 0, n-1, l-1, r-1, x))
