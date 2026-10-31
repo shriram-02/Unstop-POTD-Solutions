@@ -1,0 +1,2 @@
+#include <bits/stdc++.h>
+using namespace std;int main(){ios::sync_with_stdio(false);cin.tie(nullptr);int N,M;if(!(cin>>N>>M))return 0;vector<int>U(M),V(M);for(int i=0;i<M;i++)cin>>U[i]>>V[i];int Q;cin>>Q;vector<int>K(Q),T(Q);for(int i=0;i<Q;i++)cin>>K[i]>>T[i];vector<int>p(N+1),s(N+1,1),c(N+1,0);iota(p.begin(),p.end(),0);function<int(int)>f=[&](int x){return p[x]==x?x:p[x]=f(p[x]);};c[1]=N;int cur=0;for(int i=0;i<Q;i++){while(cur<K[i]){int a=f(U[cur]),b=f(V[cur]);cur++;if(a!=b){c[s[a]]--;c[s[b]]--;s[a]+=s[b];p[b]=a;c[s[a]]++;}}cout<<c[T[i]]<<(i+1<Q?' ':char(10));}return 0;}
